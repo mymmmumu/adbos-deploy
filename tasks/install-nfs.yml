@@ -1,0 +1,43 @@
+---
+- name: 安装nfs_server
+  yum:
+    name: "{{ item }}"
+    state: installed
+  with_items:
+    - nfs-utils
+    - rpcbind
+
+- name: 使能nfs服务
+  systemd:
+    name: "{{ item }}"
+    enabled: yes
+  with_items:
+    - rpcbind
+    - nfs-server
+
+- name: 启动nfs服务
+  systemd:
+    name: "{{ item }}"
+    state: started
+  with_items:
+    - rpcbind
+    - nfs-server
+    - rpc-statd
+    - nfs-idmapd
+
+- name: 建立目录
+  file:
+    path: "{{ NFS_PATH }}"
+    state: directory
+  tags: 
+  - test
+  when: 'inventory_hostname == "10.66.245.204"'
+
+- name: 写入配置
+  shell: 'chmod 770 /etc/exports && echo "{{ NFS_PATH }} *(rw,sync,no_root_squash)" >  /etc/exports && exportfs -r'
+  tags:
+  - test2
+  when: 'inventory_hostname == "10.66.245.204"'
+  
+#- name: 关闭防火墙
+#  shell: "if [ `ps -ef | grep firewall |wc -l` -gt 1 ]; then systemctl stop firewalld && systemctl disable firewalld; fi"

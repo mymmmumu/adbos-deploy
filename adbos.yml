@@ -1,0 +1,7 @@
+# install nfs,loca-pv,adbos etc.
+- hosts:
+  - kube-master
+  - kube-node
+  roles:
+  - adbos
+

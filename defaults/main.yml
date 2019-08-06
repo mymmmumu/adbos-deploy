@@ -1,0 +1,31 @@
+# 默认nfs挂载在第一台master主机上
+NFS_SERVER: "{{ groups['kube-master'][0] }}"
+
+# 默认local_pv挂在第一台node主机上
+LOCAL_PV: "{{ groups['kube-node'][0] }}"
+
+# 默认nfs挂载的路径
+NFS_PATH: "/home/share/adbos"
+
+# 默认数据库挂载路径
+POST_PATH: "/home/postgres"
+
+# adbos_chart声明
+ADBOS_CHART: "adbos-1.3.6.tgz" 
+
+# adbos镜像版本路径,与adbos_chart的版本一致
+#用于定位ansible执行的机器上的文件，需要绝对路径。如果拷贝的是文件夹，那么文件夹会整体拷贝，如果结尾是”/”,那么只有文件夹内的东西被考过去。一切的感觉很像rsync
+ADBOS_IMAGES: "adbos-images"
+
+#adbos依赖镜像版本路径
+BASIC_IMAGES: "basic-images"
+
+# chart存放位置
+CHART_PATH: "/home/charts"
+
+# 相关values文件存放位置
+VALUES_PATH: "/home/values"
+
+# 节点镜像存放位置
+NODE_IMAGES: "/home/images/"
+

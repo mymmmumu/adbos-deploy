@@ -1,0 +1,56 @@
+- name: enable nfs
+  import_tasks: install-nfs.yml
+  
+- name: 下载 nfs_client_provisioner,nginx_ingress,adbos_chart
+  copy: src="{{ item }}" dest="{{ CHART_PATH }}"
+  with_items:
+    - nginx-ingress
+    - nfs-client-provisioner
+    - "{{ ADBOS_CHART }}"
+  when: 'inventory_hostname == "10.66.245.204"'  
+
+- name: 安装 nfs_client_provisioner
+  shell: 'cd {{ CHART_PATH }}/nfs-client-provisioner && echo -e "nfs:\n  server: {{ NFS_SERVER }}\n  path: {{ NFS_PATH }}">values.yaml && bash make.sh install'
+  when: 'inventory_hostname == "10.66.245.204"' 
+  tags: test1
+
+- name: 安装nginx_ingress
+  shell: 'cd {{ CHART_PATH }}/nginx-ingress && bash make.sh install'
+  when: 'inventory_hostname == "10.66.245.204"'
+  tags: test2
+  
+- name: 下载基础镜像
+  copy: src="{{ item }}" dest="{{ NODE_IMAGES }}" 
+  with_items:
+    - save-load-docker-image.sh
+    - "{{ BASIC_IMAGES }}"
+
+- name: 下载adbos镜像
+  copy: src="{{ ADBOS_IMAGES }}" dest="{{ NODE_IMAGES }}" 
+  tags: test3
+
+- name: 解压所有镜像
+  shell: "cd {{ NODE_IMAGES }} && bash save-load-docker-image.sh load ./"
+  
+- name: 下载基础values配置
+  copy: src="{{ item }}" dest="{{ VALUES_PATH }}/"
+  with_items:
+    - local-pv.yml
+    - adbos-values.yml
+  when: 'inventory_hostname == "10.66.245.204"'
+    
+- name: 修改values相关配置
+  shell: "cd {{ VALUES_PATH }} && sed -i 's?postpath?{{ POST_PATH }}?g' local-pv.yml &&  sed -i 's/postnode/{{ LOCAL_PV }}/g' local-pv.yml"
+  when: 'inventory_hostname == "10.66.245.204"'
+  
+- name: 创建local_pv
+  shell: "cd {{ VALUES_PATH }} &&  kubectl apply -f local-pv.yml"
+  when: 'inventory_hostname == "10.66.245.204"'
+  
+- name: 安装adbos
+  shell: "cd {{ CHART_PATH }} && helm install {{ ADBOS_CHART }} -n adbos --namespace adbos"
+  when: 'inventory_hostname == "10.66.245.204"'
+
+
+  
+  
