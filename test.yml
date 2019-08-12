@@ -1,0 +1,9 @@
+---
+- hosts: all
+  gather_facts: no
+
+tasks:
+- name: check the date
+  command:date
+- name: check the ip 
+  command: ip add
