@@ -7,3 +7,5 @@
     command: date
   - name: check the ip 
     command: ip add
+  - name: test update
+    command: cat /etc/redhat-release
