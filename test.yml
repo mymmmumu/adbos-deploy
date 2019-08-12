@@ -4,6 +4,6 @@
 
   tasks:
   - name: check the date
-    command:date
+    command: date
   - name: check the ip 
     command: ip add
